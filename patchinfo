@@ -1,0 +1,71 @@
+#!/bin/sh
+#Patch statistics utility
+#web: http://safrm.net/projects/patchinfo
+#author: Miroslav Safr <miroslav.safr@gmail.com>
+VERSION=NA
+VERSION_DATE=NA
+
+#support color escape characters on different terminals
+alias echoc="$(which echo) -e"
+BASENAME=`basename $0`
+usage() {
+    echo "$BASENAME $VERSION - Patch statistic utility"
+    echo " http://safrm.net/projects/patchinfo/"
+    echo "Usage:$BASENAME [OPTIONS] FILE"
+    echo " Options: "
+    echo " -h --help .......................... shows command line help"
+    echo " -V, --version  ..................... prints version of scripts"
+    echo " -nc, --no-color .................... do not use terminal colors"
+    echo " "
+}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help) usage ; exit 0 ;;
+        -V|--version)         echo "$BASENAME $VERSION $VERSION_DATE" ; exit 0 ;;
+        -nc|--no-color)       NO_COLORS=1 ;;
+        *)  if [ -f "$1" ]; then
+                FILES="$1 $FILES"
+            else
+                echo "Not valid file $1" ;
+            fi
+            ;;
+    esac
+    shift
+done
+
+[ -z "$FILES" ] && exit 1
+
+#check if terminal supports colors
+tput setaf 1>/dev/null 2>&1 || NO_COLORS=1
+
+FILES=$(ls $FILES)
+FILES_COUNT=$(echo "$FILES" | grep -v '^$' | wc -l)
+
+[ -z "$NO_COLORS" ] && echoc "\033[43m\n\033[0m"
+echo "$FILES" | \
+{ while IFS=' ' read -r FILE ; do
+        FILENAME=$(basename "$FILE")
+        [ -z "$NO_COLORS" ] && echoc "\033[44m\n\033[0m" && echoc "\033[01;34m$FILENAME\033[0m" || echoc "$FILENAME"
+        PERMISSIONS=$(stat -c '%A %a' "$FILE" 2>/dev/null)
+        TIMES=$(stat -c 'created:%w modified:%y' "$FILE" 2>/dev/null)
+        FILESIZE=$(du -sh "$FILE" | awk '{print $1;}')
+        FILEINFO=$(file -b "$FILE" 2>/dev/null)
+        PATCHES_COUNT=$(grep -c -E '^[+][+][+].' "$FILE")
+        CHANGED_FILES=$(cat "$FILE" | grep -c -E "^diff ")
+        ADDED_LINES=$(grep -c -E '^[+].[^+].' "$FILE")
+        REMOVED_LINES=$(grep -c -E '^[-].[^-].' "$FILE")
+        CHANGED_LINES=$(( $REMOVED_LINES + $ADDED_LINES ))
+        STATS=$(grep -E '^[+-].[^+-].' "$FILE" | wc )
+        STAT_WORD=$(echo "$STATS" | awk '{print $2;}')
+        STAT_CHAR=$(echo "$STATS" | awk '{print $3;}')
+        HEADER=$(cat "$FILE" | grep -E "^From:|^Date:|^Subject:")
+        echoc "$HEADER"
+        echoc " file     : size:$FILESIZE $TIMES"
+        echoc " access   : $PERMISSIONS $FILEINFO"
+        echoc " file diff: patches:$PATCHES_COUNT changed files:$CHANGED_FILES"
+        echoc " line diff: +:$ADDED_LINES -:$REMOVED_LINES changed:$CHANGED_LINES"
+        echoc " char diff: changed:$STAT_WORD words $STAT_CHAR chars"
+      done
+[ -z "$NO_COLORS" ] && echoc "\033[43m\n\033[0m"
+}
