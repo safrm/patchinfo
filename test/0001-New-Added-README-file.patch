@@ -1,0 +1,27 @@
+From 9f0601db5a778783d3a9d39862a83f898e523f49 Mon Sep 17 00:00:00 2001
+From: Miroslav Safr <Miroslav.Safr@gmail.com>
+Date: Tue, 15 May 2018 16:58:38 +0300
+Subject: [PATCH] New: Added README file
+
+Signed-off-by: Miroslav Safr <Miroslav.Safr@gmail.com>
+---
+ README.md | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/README.md b/README.md
+index f335460..c0847c5 100644
+--- a/README.md
++++ b/README.md
+@@ -1,2 +1,9 @@
+ # patchinfo
++##
+ Utility for working with patches
++
++#installation
++    sudo install -m 755 ./patchinfo /usr/local/bin
++
++#usage
++    $ patchinfo test/0001-New-Added-README-file.patch
+-- 
+2.15.1
+
