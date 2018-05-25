@@ -1,11 +1,13 @@
 # patchinfo
-##
+
 Utility for working with patches
 
-#installation
+## Installation
+
     sudo install -m 755 ./patchinfo /usr/local/bin
 
-#usage
+## Usage
+
     $ patchinfo test/0001-New-Added-README-file.patch
     0001-New-Added-README-file.patch
     From: Miroslav Safr <Miroslav.Safr@gmail.com>
@@ -15,5 +17,4 @@ Utility for working with patches
      access   : -rw------- 600 unified diff output, ASCII text
      file diff: patches:1 changed files:1
      line diff: +:4 -:0 changed:4
-     char diff: changed:12 words 118 chars
-
+     char diff: changed:13 words 130 chars
